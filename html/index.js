@@ -1,4 +1,18 @@
 let ressource_name = "lucky_tanke";
+let locale = "de";
+
+const Locales = {
+    "de": {
+        ['gas_station']: "Tankstelle",
+        ['start_fueling']: 'Tankvorgang starten'
+    },
+
+    "en": {
+        ['gas_station']: "Gas Station",
+        ['start_fueling']: 'Start fueling'
+    }
+}
+
 
 $(function () {
     function display(bool) {
@@ -14,7 +28,12 @@ $(function () {
     window.addEventListener('message', function (event) {
         if (event.data.type === "ui") {
             ressource_name = event.data.name;
+            locale = event.data.locale;
             $(".bill").text("$0");
+            if (Locales[locale]) {
+                $(".gas_station").text(Locales[locale]['gas_station']);
+                $(".start").text(Locales[locale]['start_fueling']);
+            }
             if (event.data.status == true) {
                 display(true)
             } else {

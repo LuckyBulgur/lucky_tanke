@@ -1,24 +1,18 @@
 Config = {}
 
-Config.UseESX = true
+Config.Locale = 'en'
 
-Config.RefillCost = 50 --
+Config.StandardFuel = 50.0 --How many liters the car has when you buy a new one
+
+Config.RefillCost = 50
 
 Config.FuelDecor = "_FUEL_LEVEL"
 
 Config.DisableKeys = {0, 22, 23, 24, 29, 30, 31, 37, 44, 56, 82, 140, 166, 167, 168, 170, 288, 289, 311, 323}
 
 
-Config.EnableHUD = false
-
-
 Config.ShowNearestGasStationOnly = true
 Config.ShowAllGasStations = false
-
-if not Config.UseESX then
-	Config.Strings.PurchaseJerryCan = "Drücken Sie ~g~E ~w~um einen Kanister zu holen"
-	Config.Strings.RefillJerryCan = "Drücken Sie ~g~E ~w~ zum Nachfüllen des Kanisters"
-end
 
 Config.CostMultiplier = 1.0
 
@@ -36,9 +30,6 @@ Config.Blacklist = {
 	--"Adder",
 	--276773164
 }
-
-Config.RemoveHUDForBlacklistedVehicle = true
-
 
 Config.Classes = {
 	[0] = 0.2, -- Compacts

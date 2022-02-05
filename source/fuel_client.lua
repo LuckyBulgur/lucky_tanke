@@ -1,12 +1,9 @@
-if Config.UseESX then
-	Citizen.CreateThread(function()
-		while not ESX do
-			TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-
-			Citizen.Wait(500)
-		end
-	end)
-end
+Citizen.CreateThread(function()
+	while not ESX do
+		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+		Citizen.Wait(500)
+	end
+end)
 
 local isNearPump = false
 local isFueling = false
@@ -19,15 +16,12 @@ local inBlacklisted = false
 
 local display = false
 
---very important cb 
 RegisterNUICallback("exit", function(data)
 	isFueling = false
 	SetDisplay(false)
 end)
 
 
--- this cb is used as the main route to transfer data back 
--- and also where we hanld the data sent from js
 RegisterNUICallback("main", function(data)
 	local vehicle = GetPlayersLastVehicle()
 	local ped = PlayerPedId()
@@ -44,25 +38,20 @@ function SetDisplay(bool)
     SendNUIMessage({
         type = "ui",
         status = bool,
-		name = GetCurrentResourceName()
+		name = GetCurrentResourceName(),
+		locale = Config.Locale
     })
 end
 
 Citizen.CreateThread(function()
     while display do
         Citizen.Wait(0)
-        -- https://runtime.fivem.net/doc/natives/#_0xFE99B66D079CF6BC
-        --[[ 
-            inputGroup -- integer , 
-	        control --integer , 
-            disable -- boolean 
-        ]]
-        DisableControlAction(0, 1, display) -- LookLeftRight
-        DisableControlAction(0, 2, display) -- LookUpDown
-        DisableControlAction(0, 142, display) -- MeleeAttackAlternate
-        DisableControlAction(0, 18, display) -- Enter
-        DisableControlAction(0, 322, display) -- ESC
-        DisableControlAction(0, 106, display) -- VehicleMouseControlOverride
+        DisableControlAction(0, 1, display)
+        DisableControlAction(0, 2, display)
+        DisableControlAction(0, 142, display)
+        DisableControlAction(0, 18, display)
+        DisableControlAction(0, 322, display)
+        DisableControlAction(0, 106, display)
     end
 end)
 
@@ -84,7 +73,7 @@ function ManageFuelUsage(vehicle)
 			if status ~= false then
 				SetFuel(vehicle, status)
 			else
-				SetFuel(vehicle, 50.0)
+				SetFuel(vehicle, Config.StandardFuel)
 			end
 		end)
 	elseif not fuelSynced then
@@ -158,15 +147,9 @@ Citizen.CreateThread(function()
 
 		if pumpDistance < 2.5 then
 			isNearPump = pumpObject
-			if Config.UseESX then
-				local playerData = ESX.GetPlayerData()
-				for i=1, #playerData.accounts, 1 do
-					if playerData.accounts[i].name == 'money' then
-						currentCash = playerData.accounts[i].money
-						break
-					end
-				end
-			end
+			
+			ESX.TriggerServerCallback("lucky_tankstelle:money")
+
 		else
 			isNearPump = false
 
@@ -186,7 +169,6 @@ Citizen.CreateThread(function()
 			local vehicle = GetPlayersLastVehicle()
 
 			currentFuel = Round(GetVehicleFuelLevel(vehicle),1)
-			local fuelToAdd = Round(100 - currentFuel)
 			SendNUIMessage({
 				type = "anzahl",
 				current = currentFuel
@@ -198,6 +180,10 @@ Citizen.CreateThread(function()
 	end
 end)
 
+RegisterNetEvent("lucky_tankstelle:setMoney")
+AddEventHandler("lucky_tankstelle:setMoney", function(money)
+	currentCash = money
+end)
 
 AddEventHandler('lucky_tankstelle:startFuelUpTick', function(pumpObject, ped, vehicle)
 	currentFuel = GetVehicleFuelLevel(vehicle)
@@ -228,12 +214,9 @@ AddEventHandler('lucky_tankstelle:startFuelUpTick', function(pumpObject, ped, ve
 
 		currentCost = currentCost + extraCost
 
-		if currentCash >= currentCost then
-			SetFuel(vehicle, currentFuel)
-			TriggerServerEvent("lucky_tankstelle:save", currentFuel, GetVehicleNumberPlateText(vehicle))
-		else
-			isFueling = false
-		end
+		SetFuel(vehicle, currentFuel)
+		TriggerServerEvent("lucky_tankstelle:save", currentFuel, GetVehicleNumberPlateText(vehicle))
+
 	end
 
 	if pumpObject then
@@ -263,20 +246,15 @@ AddEventHandler('lucky_tankstelle:refuelFromPump', function(pumpObject, ped, veh
 			local stringCoords = GetEntityCoords(pumpObject)
 			local extraString = ""
 
-			if Config.UseESX then
+			SendNUIMessage({
+				type = "anzahl",
+				current = Round(currentFuel, 1)
+			})
+			SendNUIMessage({
+				type = "bill",
+				bill =  Round(currentCost, 1),
+			})
 
-				SendNUIMessage({
-					type = "anzahl",
-					current = Round(currentFuel, 1)
-				})
-				SendNUIMessage({
-					type = "bill",
-					bill =  Round(currentCost, 1),
-				})
-
-			end
-
-		else
 		end
 
 		if not IsEntityPlayingAnim(ped, "timetable@gardener@filling_can", "gar_ig_5_filling_can", 3) then
@@ -320,18 +298,18 @@ Citizen.CreateThread(function()
 
 						if GetVehicleFuelLevel(vehicle) < 99 and canFuel then
 							if currentCash > 0 then
-								DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.6, "Drücke ~g~E~w~ um das Tankmenü zu öffnen.")
+								DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.6, _U("open_menu"))
 
 								if IsControlJustReleased(0, 38) then
 									isFueling = true
 									SetDisplay(not display)
 								end
 							else
-								DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.2, "~r~Du hast kein Geld bei dir, willst du mich bestehlen?")
+								DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.2, _U("poor_man"))
 							end
 						elseif not canFuel then
 						else
-							DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.6, "Du kannst keinen ~r~Treibstoff~w~ mehr tanken")
+							DrawText3Ds(stringCoords.x, stringCoords.y, stringCoords.z + 1.6, _U("cant_refuel"))
 						end
 					end
 				elseif isNearPump then
@@ -378,54 +356,6 @@ elseif Config.ShowAllGasStations then
 	Citizen.CreateThread(function()
 		for _, gasStationCoords in pairs(Config.GasStations) do
 			CreateBlip(gasStationCoords)
-		end
-	end)
-end
-
-if Config.EnableHUD then
-	local function DrawAdvancedText(x,y ,w,h,sc, text, r,g,b,a,font,jus)
-		SetTextFont(font)
-		SetTextProportional(0)
-		SetTextScale(sc, sc)
-		N_0x4e096588b13ffeca(jus)
-		SetTextColour(r, g, b, a)
-		SetTextDropShadow(0, 0, 0, 0,255)
-		SetTextEdge(1, 0, 0, 0, 255)
-		SetTextDropShadow()
-		SetTextOutline()
-		SetTextEntry("STRING")
-		AddTextComponentString(text)
-		DrawText(x - 0.1+w, y - 0.02+h)
-	end
-
-	local mph = 0
-	local kmh = 0
-	local fuel = 0
-	local displayHud = false
-
-	local x = 0.01135
-	local y = 0.002
-
-	Citizen.CreateThread(function()
-		while true do
-			local ped = PlayerPedId()
-
-			if IsPedInAnyVehicle(ped) and not (Config.RemoveHUDForBlacklistedVehicle and inBlacklisted) then
-				local vehicle = GetVehiclePedIsIn(ped)
-				local speed = GetEntitySpeed(vehicle)
-
-				mph = tostring(math.ceil(speed * 2.236936))
-				kmh = tostring(math.ceil(speed * 3.6))
-				fuel = tostring(math.ceil(GetVehicleFuelLevel(vehicle)))
-
-				displayHud = true
-			else
-				displayHud = false
-
-				Citizen.Wait(500)
-			end
-
-			Citizen.Wait(50)
 		end
 	end)
 end

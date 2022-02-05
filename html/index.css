@@ -53,16 +53,16 @@ input {
 
 }
 
-img.tankstellenicon{
+img.gas_stationicon{
     position: absolute;
     width: 102px;
     height: 102px;
 }
 
-p.tankstelle {
+p.gas_station {
     
 position: absolute;
-width: 133.24px;
+width: 155.24px;
 height: 36px;
 left: 141px;
 top: 54px;

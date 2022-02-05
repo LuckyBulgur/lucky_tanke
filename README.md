@@ -5,8 +5,8 @@
 A simple fuel system for FiveM.
 
 ### Installation
-1) Download the latest version in the "code" tab on GitHub.
-2) Drag & drop the folder into your `resources` server folder.
-3) Add the `lucky_tanke.sql` to your `database`.
-4) Configure the config file to your liking.
-5) Add `start lucky_tanke` to your server config.
+1) Download this script.
+2) Drag & drop the folder into your `resources` folder.
+3) Add the `lucky_tanke.sql` file to your `database`.
+4) Configure the config as you like.
+5) Add `start lucky_tanke` to your server cfg.

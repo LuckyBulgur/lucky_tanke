@@ -2,21 +2,22 @@ fx_version 'bodacious'
 game 'gta5'
 
 client_scripts {
+	'@es_extended/locale.lua',
 	'config.lua',
 	'functions/functions_client.lua',
 	'source/fuel_client.lua',
+	'locales/en.lua',
+	'locales/de.lua',
 }
 
 server_scripts {
+	'@es_extended/locale.lua',
 	'config.lua',
 	'source/fuel_server.lua',
 	'@async/async.lua',
 	'@mysql-async/lib/MySQL.lua',
-}
-
-exports {
-	'GetFuel',
-	'SetFuel'
+	'locales/en.lua',
+	'locales/de.lua',
 }
 
 files {

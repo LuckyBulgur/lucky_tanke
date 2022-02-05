@@ -9,8 +9,8 @@
 <body>
   <div id="container">
     <div class="top"></div>
-    <img class="tankstellenicon" src="img/tanke.png">
-    <p class="tankstelle">Tankstelle</p>
+    <img class="gas_stationicon" src="img/tanke.png">
+    <p class="gas_station">Tankstelle</p>
     <div class="chart">
       <div class="ldBar"></div>
       <div class="single-chart">
@@ -43,10 +43,11 @@
         </div>
       </div>
     </div>
-    <button id="submit" onclick="tanken()" class="submit" type="submit">
-      <p style="font-family: Poppins; color: white; font-weight: 500;margin-top: -3;">Tankvorgang starten</p>
+    <button id="submit" onclick="fuel()" class="submit" type="submit">
+      <p class="start" style="font-family: Poppins; color: white; font-weight: 500;margin-top: -3;">Tankvorgang starten
+      </p>
     </button>
-    <button id="close" onclick="tanken()" style="display: none;" class="close">
+    <button id="close" onclick="fuel()" style="display: none;" class="close">
       <p style="font-family: Poppins; color: white; font-weight: 500;margin-top: -3;">Stop</p>
     </button>
   </div>
@@ -54,7 +55,7 @@
   <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 </body>
 <script>
-  function tanken() {
+  function fuel() {
     var x = document.getElementById("submit");
     var y = document.getElementById("close");
     var z = document.getElementById("suuui");
